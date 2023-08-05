@@ -1,6 +1,3 @@
-import torch.nn as nn
-import torch.nn.functional as F
-
 from gym import Env
 from gym.spaces import Discrete, Box
 import numpy as np
@@ -9,7 +6,6 @@ from typing import Tuple
 
 
 class EnergyEnvironment(Env):
-
     def __init__(self, time_period: int, max_energy: int):
         super(EnergyEnvironment, self).__init__()
         self.time_period = time_period  # Временной период в часах
@@ -36,9 +32,10 @@ class EnergyEnvironment(Env):
         self.energy = 0
 
     def step(self, action):
-        energy = action[0]
-        co2 = self.energy_sources[energy]['CO2'] * action[1] / 1000
-        self.energy += action[1]
+        energy_source = action
+        power = self.power_space.sample()[0]
+        co2 = self.energy_sources[energy_source]['CO2'] * power / 1000
+        self.energy += power
         self.time += 1
         observation = (self.time, self.energy, co2)
 
@@ -50,7 +47,7 @@ class EnergyEnvironment(Env):
         info = {}
         return observation, reward, done, info
 
-    def reset(self, seed=None, options=None) -> Tuple[np.ndarray, dict]:
+    def reset(self, seed=None, options=None) -> Tuple[np.ndarray, float, bool, dict]:
         if seed is not None:
             random.seed(seed)
 
@@ -58,6 +55,8 @@ class EnergyEnvironment(Env):
         self.energy = 0
 
         observation = np.array((0, 0, 0))
+        reward = 0.0
+        done = False
         info = {}
 
-        return observation, info
+        return observation, reward, done, info
