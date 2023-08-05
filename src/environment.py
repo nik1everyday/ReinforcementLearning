@@ -22,10 +22,8 @@ class EnergyEnvironment(Env):
             {'name': 'nuclear', 'power_per_hour': 1450, 'CO2': 3}
         ]
 
-        # Дискретное действие - источник энергии
         self.action_space = Discrete(len(self.energy_sources))
 
-        # Непрерывное действие - мощность
         self.power_space = Box(0, max(s['power_per_hour'] for s in self.energy_sources), shape=(1,))
 
         self.time = 0
